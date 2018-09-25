@@ -1,7 +1,7 @@
 import re, sys, operator
-import codecs
+import io
 
-f = codecs.open(sys.argv[1], 'r', errors='ignore')
+f = io.open(sys.argv[1], 'r', errors='ignore')
 mode = sys.argv[2]
 
 if mode == 'composer':
