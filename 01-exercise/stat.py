@@ -21,7 +21,6 @@ if mode == 'composer':
     for i in result:
         if ';' in i:
             res = i.split(';')
-            filter(str.strip, res)
             composers.extend(res)
         else:
             composers.append(i)
