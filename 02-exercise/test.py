@@ -46,7 +46,7 @@ def parseComposition(line, voices_arr, people_arr):
     name_atr = name.group(1) if name is not None else None
     genre_atr = genre.group(1) if genre is not None else None
     incipit_atr = incipit.group(1) if incipit is not None else None
-    year_atr = year.group(1) if year is not None else None
+    year_atr = int(year.group(1).strip()) if year is not None else None
     key_atr = key.group(1) if key is not None else None
 
     return Composition(name_atr, incipit_atr, key_atr, genre_atr, year_atr, voices_arr, people_arr)
