@@ -66,7 +66,7 @@ def parsePrint(line, edition):
     if partiture is not None:
         partiture_atr = False if 'yes' not in partiture.group(1) else True
 
-    print_id_atr = int(print_id.group(1).strip())
+    print_id_atr = print_id.group(1).strip()
     return Print(edition, print_id_atr, partiture_atr)
 
 

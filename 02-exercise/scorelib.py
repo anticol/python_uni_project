@@ -4,7 +4,7 @@ from __future__ import print_function
 class Print:
     def __init__(self, edition, print_id, partiture):
         self.edition = edition  # instance of Edition
-        self.print_id = print_id  # integer from Print Number:
+        self.print_id = int(print_id)  # integer from Print Number:
         self.partiture = partiture  # boolean
 
     # reconstructs and prints the original stanza
@@ -59,7 +59,7 @@ class Person:
 
 def printData(n, data):
     if data is not None:
-        print(n, data.strip())
+        print(n, ("%s" % data).strip())
 
 
 def printVoice(d):
