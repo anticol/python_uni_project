@@ -39,7 +39,7 @@ def get_date(goal, regression_slope):
         return math.inf
 
     beginning = datetime.datetime.strptime("2018-09-17", '%Y-%m-%d').date().toordinal()
-    return datetime.date.fromordinal(math.ceil((float(goal) / regression_slope) + beginning)).strftime("%Y-%m-%d")
+    return datetime.date.fromordinal(int((float(goal) / regression_slope) + beginning)).strftime("%Y-%m-%d")
 
 
 def cummulate_points(points):
