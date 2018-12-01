@@ -39,7 +39,7 @@ def get_date(goal, regression_slope):
         return math.inf
 
     beginning = datetime.datetime.strptime("2018-09-17", '%Y-%m-%d').date().toordinal()
-    return datetime.date.fromordinal(int((float(goal) / regression_slope) + beginning)).strftime("%Y-%m-%d")
+    return datetime.date.fromordinal(math.floor((goal / regression_slope) + beginning)).strftime("%Y-%m-%d")
 
 
 def cummulate_points(points):
@@ -61,8 +61,8 @@ def print_student_results(arr, dates, student_points_by_date):
     student['total'] = sum(arr)
     student['passed'] = get_passed(arr)
     student['regression slope'] = get_regression_slope(dates, cummulate_points(student_points_by_date))
-    student['date 16'] = get_date(16, student['regression slope'])
-    student['date 20'] = get_date(20, student['regression slope'])
+    student['date 16'] = get_date(16.0, student['regression slope'])
+    student['date 20'] = get_date(20.0, student['regression slope'])
 
     print(json.dumps(student, indent=2, ensure_ascii=False))
 
