@@ -1,137 +1,118 @@
 import sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib import parse, error
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 import json
-import asyncio
-import ssl, socket
-import aiohttp
-from aiohttp import web
 
-def get_info(host, port):
 
-    context = ssl.create_default_context()
-    with context.wrap_socket(socket.socket(), server_hostname=host) as s:
+def make_json(code, headers, content):
+    data = {'code': code}
 
+    if headers:
+        header_dictionary = dict()
+        for idx, val in headers:
+            header_dictionary[idx] = val
+        data['headers'] = header_dictionary
+
+    if content:
         try:
-            s.connect((host, port))
-        except ssl.CertificateError as e:
-            return {'certificate valid': False, 'cert error': e.strerror}
-        except ssl.SSLError as e:
-            return {}
+            data['json'] = json.loads(content)
+        except ValueError:
+            data['content'] = content
 
-        peercert = s.getpeercert()['subjectAltName']
-        hostname_list = [c[1] for c in peercert]
-        return {'certificate valid': True, 'certificate for': hostname_list}
+    return json.dumps(data, indent=2)
 
 
-def get_response(r):
+def HttpHandler(url):
+    class Handler(BaseHTTPRequestHandler):
+        def send(self, code, json_data):
+            self.send_response(code)
+            self.send_header('Content-Type', "application/json; charset=UTF-8")
+            length = len(json_data)
+            self.send_header('Content-Length', str(length))
+            self.end_headers()
+            self.wfile.write(bytes(json_data, ENCODING))
 
-    json_nice_response = json.dumps(r, indent=2, ensure_ascii=False)
-    return web.Response(text= json_nice_response)
+        def do_GET(self):
+            path = self.path
+            request_url = url
+            parameters = parse.urlparse(path).query
+            if parameters:
+                request_url += '?' + parameters
+            if 'Host' not in self.headers:
+                pass
+            else:
+                del self.headers['Host']
 
+            self.headers['Accept-Encoding'] = 'identity'
+            request = Request(request_url, None, self.headers, method=GET_METHOD)
+            try:
+                with urlopen(request, timeout=DEFAULT_TIMEOUT) as result:
+                    self.send(OK_STATUS, make_json(result.status, result.getheaders(), result.read().decode(ENCODING)))
 
-async def get_handler(request):
+            except error.HTTPError as http_error:
+                self.send(OK_STATUS, make_json(http_error.code, None, None))
+            except:
+                self.send(OK_STATUS, make_json('timeout', None, None))
 
-    request = {
-        'type': DEFAULT_TYPE,
-        'url': UPSTREAM,
-        'content': await request.text(),
-        'headers': request.headers,
-        'timeout': DEFAULT_TIMEOUT,
-    }
+        def do_POST(self):
+            try:
+                content_length = int(self.headers.get('Content-Length'), 0)
+                json_data = self.rfile.read(content_length)
+                data = json.loads(json_data)
+                if data.get('url') is None or (data.get('type') is not None and data.get('type') == POST_METHOD and data.get('content') is None):
+                    raise Exception("Missing parameter")
+            except:
+                self.send(OK_STATUS, make_json('invalid json', None, None))
+                return
 
-    json_response = await send_request(request)
-    return aiohttp.web.json_response(json_response)
-    #return get_response(json_response)
+            try:
+                request_method = GET_METHOD if data.get('type') is None else data['type']
+                request_content = data['content'] if request_method == POST_METHOD else None
+                json_content = json.dumps(request_content).encode(ENCODING) if request_content else None
+                request_timeout =  DEFAULT_TIMEOUT if data.get('timeout') is None else data['timeout']
 
+                request_headers = dict() if data.get('headers') is None else data['headers']
+                request_headers['Accept-Encoding'] = 'identity'
 
-async def post_handler(request: web.Request):
+                if request_headers.get('Content-Type') is None:
+                    request_headers['Content-Type'] = 'application/json; charset=utf-8'
+                req = Request(data['url'], json_content, request_headers, method=request_method)
 
-    try:
-        req_json = await request.json()
-    except json.decoder.JSONDecodeError as e:
-        req_json = {}
+                with urlopen(req, timeout=request_timeout) as result:
+                    self.send(OK_STATUS, make_json(result.status, result.getheaders(), result.read().decode(ENCODING)))
+            except error.HTTPError as err:
+                self.send(OK_STATUS, make_json(err.code, None, None))
+            except:
+                return self.send(OK_STATUS, make_json('timeout', None, None))
 
-    json_response = await send_request(req_json)
-    return aiohttp.web.json_response(json_response)
-    #return get_response(json_response)
-
-
-async def send_request(request_to_send):
-
-    request_to_send['timeout'] = 1 if 'timeout' not in request_to_send.keys() else float(request_to_send['timeout'])
-    request_to_send['type'] = DEFAULT_TYPE if 'type' not in request_to_send.keys() else request_to_send['type'].upper()
-
-    if 'url' not in request_to_send.keys() or request_to_send['type'] not in ['GET', 'POST'] or (request_to_send['type'] == 'POST' and 'content' not in request_to_send.keys()):
-        return {'code': 'invalid json'}
-
-    if not request_to_send['url'].startswith('http://') and not request_to_send['url'].startswith('http://'):
-        request_to_send['url'] = 'http://%s' % request_to_send['url']
-
-    #request_to_send['content'] = None if 'content' not in request_to_send.keys() else bytes(request_to_send['content'],'utf-8')
-    #request_to_send['content'] = None if 'content' not in request_to_send.keys() else request_to_send['content']
-    request_to_send['content'] = request_to_send['content'] if 'content' in request_to_send.keys() and request_to_send['type'] == 'POST' else None
-
-    request_to_send['headers'] = None if 'headers' not in request_to_send.keys() else request_to_send['headers']
-    #request_to_send['headers'].update({'Content-Type': 'text/plain'})
-    #request_to_send['headers']['Content-Type'] = 'text/plain'
-    #print(request_to_send['headers'])
-
-
-    result = {}
-
-    async with aiohttp.ClientSession() as session:
-
-        try:
-            async with session.request(
-                    request_to_send['type'],
-                    request_to_send['url'],
-                    data=request_to_send['content'],
-                    headers=request_to_send['headers'],
-                    timeout=aiohttp.ClientTimeout(total=request_to_send['timeout']),
-                    verify_ssl=False,
-                    ) as response:
-
-                headers = {}
-                for k, v in response.headers.items():
-                    headers[k] = ','.join(response.headers.getall(k))
-
-                result['headers'] = headers
-
-                result['code'] = response.status
-                
-                result.update(get_info(response.url.host, response.url.port))
-
-                try:
-                    result['json'] = await response.json()
-                except aiohttp.client_exceptions.ContentTypeError:
-                    result['content'] = await response.text()
-
-                return result
-
-        except asyncio.TimeoutError:
-            return {'code': 'timeout'}
-
-
-def lets_begin(p):
-
-    app = web.Application()
-    routes_arr = [web.get('/', get_handler), web.post('/', post_handler)]
-    app.add_routes(routes_arr)
-    web.run_app(app, port=p)
+    return Handler
 
 
 def main():
+    global DEFAULT_TIMEOUT, GET_METHOD, POST_METHOD, ENCODING, OK_STATUS
+    GET_METHOD = 'GET'
+    POST_METHOD = 'POST'
+    DEFAULT_TIMEOUT = 1
+    ENCODING = "UTF-8"
+    OK_STATUS = 200
 
     if len(sys.argv) != 3:
         print('Wrong number of arguments')
         return
 
-    global PORT,UPSTREAM,DEFAULT_TIMEOUT, DEFAULT_TYPE
-    PORT = int(sys.argv[1])
-    UPSTREAM = sys.argv[2]
-    DEFAULT_TIMEOUT = 1
-    DEFAULT_TYPE = 'GET'
-    lets_begin(PORT)
+    port = sys.argv[1]
+    upstream = sys.argv[2]
+    parsed_url = urlparse(upstream)
+
+    if parsed_url.scheme != 'http':
+        if parsed_url.scheme != 'https':
+            upstream = 'http://' + upstream
+
+    server = HTTPServer(('', int(port)), HttpHandler(upstream))
+    server.serve_forever()
 
 
-if __name__ == "__main__":
-    main()
+
+main()
