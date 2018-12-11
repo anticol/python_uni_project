@@ -1,5 +1,6 @@
 import http.server
 import os
+import pprint
 import socketserver
 from sys import argv
 import urllib.error
@@ -12,6 +13,7 @@ def create_handler(base_directory, read_len=999):
     class Handler(http.server.CGIHTTPRequestHandler):
 
         def translate_path(self, path):
+            print('PATH: ' + path)
             return path
 
         def do_HEAD(self):
@@ -26,11 +28,13 @@ def create_handler(base_directory, read_len=999):
         def handle_call(self):
             request_url = urllib.parse.urlparse(self.path)
             path = os.path.abspath(os.path.join(dir, request_url.path[1:]))
-            os.path.relpath(path, os.getcwd())
             if os.path.isfile(path):
                 if path.endswith('.cgi'):
                     modified_path = os.path.split(os.path.relpath(path, os.getcwd()))
                     self.cgi_info = modified_path[0], '{}?{}'.format(modified_path[1], request_url.query)
+                    if self.cgi_info[0] == '':
+                        self.cgi_info = '.',self.cgi_info[1]
+                    print(self.cgi_info)
                     self.run_cgi()
                 else:
                     self.get_result(path)
