@@ -103,7 +103,6 @@ class TTTHandler(BaseHTTPRequestHandler):
                     x = int(x)
                     y = int(y)
                     status, message = game.make_turn(player, x, y)
-                    game.print_game()
 
                     res_json['status'] = status
                     if status is not message:
