@@ -1,0 +1,50 @@
+review od 433487 *0.5
+
+Thanks for the review. Review is nicely written. In the future I will try to avoid the mistakes I did. 
+Some of information you wrote me are totally new for me and that is even more useful.
+---
+
+
+09-exercise
+
+Code is readable, structure is easy to follow and overally it is nicely written.
+I have just few suggestions:
+
+I think it is good idea to pass arguments to main() function (and not parse them in that function using sys calls) 
+because then it is possible to use script also as module, not just as executabble. 
+That means that then you are able to reuse that code in different programs/applications.
+
+Another thing that could be improved is two nested ifs on lines 109-112. It is usually best to avoid nesting control flow statements
+as it decreases readibility of the code.
+
+Also, it is usually best to avoid global variables - especially in the way it is done here - in main() function. It is better to either
+define global variables on top of the file or import is as part of different module - e.g. from constants import DEFAULT_TIMEOUT.
+
+Also, on line 65, when you raise Exception, it would be better to also include which "parameter is missing" in exception message.
+
+01-exercise
+
+Do not leave commented out code (line 5, 11). There is usually no reason to leaving commented out code - you dont need to be worry
+that you would delete something and never  get it back - if you use control version system like git, it will always stay in history.
+Use  better namings than "i" - when I read it just by skimming  the source  code, I have no idea what that variable represents
+(its ok if you use it just as index when you iterate over some list, otherwise its best to give more explanatory names to variables).
+
+I think its better to use snake_case than camelCase in python because that is what community decided to use.
+Another improvement could be naming of variables - for example on line 9, 12 and 13, you use names like "pattern", "pattern1", "pattern2".
+It would be better to name those variables as "extract_composer_name_pattern", "extract_composer_year_pattern" so it can be clearly
+understood in few seconds what that horrible regexps represent.
+On line 38 - it would be beneficial to add comment for "if (len(k) > 2):". What does that condition represent?
+I have no means to understand that until I spend considerably enough time analyzing how it all works and how text file is structured.
+Instead of comment it would be also possible to use  something like "some_condition_met = len(k) > 2" and then use "if some_condition_met".
+
+Lastly,  you use magic constants all over code - it would be better to define them as some constant variables on  top of the file
+(and ideally naming them in a way that reader can understand what that magic number represents).
+
+02-exercise
+Again, I would use snake_case rather than camelCase.
+Overally it looks good to me, I would just avoid naming variables as 'i' or 'd'.
+The problem with naming variables like that is that a programmer who sees code for the first time cannot
+understand it just by skimming the source. Time is usually money in practice, so writing code which is understandable
+in least time possible is usually what we should be aiming for.
+
+On line 61 - add comment why could be data None? Conditions like that appear very magical to readers who never saw the code before.
