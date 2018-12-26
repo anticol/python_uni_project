@@ -1,3 +1,8 @@
+review od 422437 *0.5
+
+Dakujem za review, ktora bola velmi uzitocna a ziskane poznatky do buducna urcite zapracujem a zlepsim tym svoj kod
+
+
 ﻿# HW08
 # stat.py
 -	Pekny a citatelny kod ktory rozumne rozdeluje kod do mensich funkcii a velmi jednoducho je citatelny (mam na mysli funkcie get_mean, get_median, …) – potom v dalsich funkciach sa kod pouziva a znizuje sa  mentalna narocnost na pochopenie vacsich funkcii; pale chore
