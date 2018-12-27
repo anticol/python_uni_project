@@ -1,14 +1,9 @@
-#TODO SPRAVIT EXCEPTIONS
-
 from urllib import request
 #from ttt import *
 from sys import argv
 import urllib
 from time import sleep
 import json
-import requests
-from socketserver import ThreadingMixIn
-from http.server import HTTPServer, BaseHTTPRequestHandler
 GAMES = {}
 
 def parse_json_response(response):
