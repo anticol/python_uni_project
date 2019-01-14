@@ -1,0 +1,103 @@
+review od 433308 *0.5
+
+
+Dakujem za review bola uzitocna, pomohla mi zapracovat nedostatky a naucit sa nieco do buducna.
+
+# HW05 - eqn
+
+- 'createArrays' je zbytočne dlhé a používa while namiesto for cyklu.
+Takto by sa to dalo urobiť omnoho kratšie a čitateľnejšie:
+```
+def createArrays(parsedEquations: List[Dict[str, float]]):
+    variables = list(parsedEquations[0].keys())
+    arrays = []
+    for equation in parsedEquations:
+        arrays.append([equation[variable] for variable in variables])
+    return arrays
+```
+
+- Globálna premenná `letters` je code smell. 
+Nevidím dôvod, musí byť globálna, radšej by som ju dal do dvojice s rovnicami
+alebo by som celý kód prepísal ako triedu, čím by bolo jednoduchšie zdieľať
+obsah globálnych hodnot vzhľadom k výpočtu.
+
+- `number = int('-1')` môže rovno používať `-1`. Tu aj na iných miestach je zbytočný kód, 
+ktorý by sa dal odstrániť alebo skrátiť. Hlavné využitie týchto zmien by bolo zčitateľnenie.
+Príkladom môže byť napríklad `equation.update({letter: number})`.
+
+- `print('no solution\n')` - nie je treba dávať nový riadok na koniec print, takto je na výstupe nový riadok dvakrát.
+
+- `encoding='utf-8-sig'` pre otváranie súboru je trochu zvláštne kódovanie, python by si s tým mal poradiť sám,
+toto zjavne predpokladá, že súbor začína nejakými zvláštnymi znakmi, aj keď testovacie súbory by mali byť ASCII.
+
+- `checkRanks` vracia False alebo None, asi by malo vracať True alebo False.
+
+- v `countResult` sa na vypisovanie výsledku používa for cyklus s oddelovačom, ja by som radšej použil 
+`print(', '.join(['{} = {}'.format(key, results_dict[key]) for key in in results_dict]))`
+
+- V `countResult` je nepoužívaný parameter, ktorý môže byť odstránený.
+
+- Na viacerých miestach je použité zreťazovanie stringov, čo je nie dobrý zvyk pretože reťazce sú nemenné a tak sa
+musí stále vytvárať nový objekt. Python to zvláda dosť dobre, ale použitie `str.format` a `str.join` 
+je preferované riešenie.
+
+
+# HW10 - serve.py
+
+Toto riešenie je dosť pekné a až na malé množstvo výhrad by som ho veľmi rád videl použité v praxi.
+Server je multivláknový a na niektorých miestach používa jednoduché logovanie. Namiesto vynaliezania nového riešenia
+využíva existujúci CGI handler a iba upravuje jeho chovanie. 
+
+Problémy by som len videl vo formátovaní, kde by automatické nástroje na formátovanie textu dokázali napraviť chýbajúce 
+medzeri, ale inak je vzhľadovo kód vporiadku. Taktiež by som handlovanie CGI volania presunul z handle_call 
+do samostanej funkcie rovnako ako bolo spravené s čítaním súboru. Čítanie súboru je skvele implementované, pretože 
+nečíta celý súbor naraz, čo by mohol byť dosť veľký problém pri veľkých súboroch. Ako poslednú výtku by som mal že
+ERROR_CODE je globálna premenná a nie parameter pri vytváraní handleru alebo proste fixne daná, keďže nie je dôvod
+používať inú hodnotu než 404. 
+
+Veľmi sa mi páči použitie send_error aj s explain parametrom. Taktiež som veľmi rád, že súbory sú čítané ako binárne 
+súbory a nie ako text, pretože to by vedelo veľmi ľahko spôsobiť problémy.
+
+Tento kód je ale podľa mňa až príliš dobrý a mám pocit, že nad ním bolo strávené príliš veľa času, a na tomto predmete
+'Worse is better.'
+ 
+ 
+Posledná vec, na ktorú by som chcel upozorniť (toto platí pre všetky úlohy) je že na niektorých miestach sú
+premenné pomenované ako už existujúce funkcie Pythonu (napríklad dir).
+
+# HW12 - ttt client
+
+## Pozitíva
+
+Dobre organizovaný kód rozdelený do funkcí s dobrým formátovaním.
+Nevidel som v kóde, žiadne veľké problémy so štýlom a veľmi sa mi páči,
+že aj malé izolované kroky sú vo vlastných funkciách. Veľmi ľahko sa celý kód číta.
+
+## Problémy
+
+Toto riešenie nespĺňa zadanie, pretože začatie novej hry požaduje názov hry
+na novom riadku namiesto po 'new'.
+
+Keďže `client.py` používa rekurziu na čakanie, tak ak som AFK dlhšiu dobu,
+dostanem stack overflow.
+
+`print_game` je zbytočne dlhé a dalo by sa skrátiť jednoduchým for cyklom.
+
+V `ttt.py` je if na request_path rozdelený do dvoch if-ov zbytočne.
+
+Celkove by bolo dobré spustiť na kóde reformat (defaultne Ctrl+Alt+L v PyCharm),
+pretože miestamy chýbali nové riadky a niekde ich bolo priveľa - toto je len
+drobná poznámka a nie je veľmi významná.
+
+Na niekoľkých miestach sú zátvorky navyše, premenné sú camel case a podobné
+drobné prehrešky. Tieto problémy je možné odhaliť pomocou inšpekcíi v PyCharm
+a tak je možné rýchlo mať čitateľnejší a debugovateľnejší kód.
+
+Znaky `x`, `o`, a `_` pre tlač sa vyskytujú na niekoľkých miestach. 
+Ja by som preferoval, ak by boli ako globálne konštanty pre zjednodušenie
+udržovateľnosti programu.
+
+## Celkové hodnotenie
+
+Až na drobné nesplnenie zadania je toto riešenie dobré. 
+
