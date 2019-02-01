@@ -1,137 +1,74 @@
-from __future__ import print_function
-import numpy as np
-import re,os, sys
+import numpy
+import re
+import sys
 
-letters = []
+def main(input_filename):
+    
+    number_of_line = 0
+    coeff = dict()
+    vars = []
 
-def parseLeft(toParse):
-    items = []
-    splitedItems = toParse.split(' ')
+    for line_number, line in enumerate(open(input_filename, 'r')):
+        coeff[line_number] = dict()
+        number_of_line = line_number + 1
 
-    if '-' not in splitedItems[0]:
-        items.append('+' + splitedItems[0])
+        no_spaces = line.replace(' ', '')
+        for index, part in enumerate(re.findall(r'([=\-+]?[a-z0-9]+)', no_spaces)):
+            match = re.match(r'^([=\-+])?(\d*)(\w*)$', part)
+
+            sign = match.group(1)
+            if not sign:
+                sign = '+'
+            cft = match.group(2)
+            if cft:
+                cft = cft
+            else:
+                cft = '1'
+            letter = match.group(3)
+            if sign == '=':
+                vars.append(int(cft))
+            else:
+                coeff[line_number][letter] = int('%s%s' % (sign, cft))
+
+    variables = set()
+    for row_index, coefficients in coeff.items():
+        for letter, cft in coefficients.items():
+            if letter not in variables:
+                variables.add(letter)
+
+    mtx = []
+    for i in range(number_of_line):
+        out = []
+        for variable in sorted(list(variables)):
+            if i in coeff and variable in coeff[i]:
+                out.append(coeff[i][variable])
+            else:
+                out.append(0)
+
+        mtx.append(out)
+
+    augmented_matrix = [row.copy() for row in mtx]
+    for index, number in enumerate(vars):
+        augmented_matrix[index].append(number)
+
+    cm_rank = numpy.linalg.matrix_rank(numpy.array(mtx))
+    am_rank = numpy.linalg.matrix_rank(numpy.array(augmented_matrix))
+
+    if am_rank != cm_rank:
+        print('no solution')
     else:
-        items.append(splitedItems[0])
-    iterator = 1
-
-    while iterator + 1 < len(splitedItems):
-        items.append(splitedItems[iterator] + splitedItems[iterator +1])
-        iterator = iterator + 2
-
-    equation = {}
-    for i in items:
-        if i[:-1] == '-':
-            number = int('-1')
-        #elif i[0] == '-':
-        #    number = int((i[:-1])[1:])
-        else:
-            number = 1 if len(i[:-1]) < 2 else int(i[:-1])
-        letter = i[-1:]
-        if letter not in letters:
-            letters.append(letter)
-        equation.update({letter: number})
-
-    return equation
+        try:
+            solutions_strings = []
+            solts = numpy.linalg.solve(numpy.array(mtx), numpy.array(vars))
+            for variable, solution in zip(sorted(list(variables)), solts):
+                solutions_strings.append('%s = %s' % (variable, solution))
+            print('solution: %s' % ", ".join(solutions_strings))
+        except:
+            solution_space = len(variables) - cm_rank
+            print('solution space dimension: %s' % solution_space)
 
 
-def createArrays(parsedEquations):
-    variablesCount = len(parsedEquations[0])
-    variables = list(parsedEquations[0].keys())
-    arrays = []
-    iterator1 = 0
-    iterator2 = 0
+if len(sys.argv) >= 2:
+    input_filename = sys.argv[1]
+    main(input_filename)
 
-    while iterator1 < len(parsedEquations):
-        newArray = []
-        while iterator2 < variablesCount:
-            variable = variables[iterator2]
-            newArray.append(parsedEquations[iterator1][variable])
-            iterator2 = iterator2 +1
-        arrays.append(newArray)
-        iterator1 = iterator1 +1
-        iterator2 = 0
-
-    return arrays
-
-def checkRanks(a,b):
-    rank_A = np.linalg.matrix_rank(a)
-    rank_B = np.linalg.matrix_rank(b)
-    if rank_B < len(letters):
-        print('solution space dimension:', len(letters) -rank_B)
-        return False
-
-def checkZeroDeterminant(a):
-    det = int(np.linalg.det(a))
-    return det == 0
-
-def countResult(a,b,variables,EQUATIONS):
-    result = np.linalg.solve(a, b)
-    iterator = 0
-    #for i in EQUATIONS:
-        #print(i)
-    results_dict = {}
-
-    it = 0
-    while it < len(variables):
-        results_dict.update({variables[it]: str(round(result[it],5))})
-        it = it + 1
-
-    print('solution: ', end='')
-    delimiter = ''
-    for key in sorted(results_dict):
-        print(delimiter + key + ' = ' + results_dict[key] , end= '')
-        delimiter = ', '
-    print('')
-
-def compute(input):
-
-    EQUATIONS = input
-
-    results_array = []
-    parsedEquations = []
-    for i in EQUATIONS:
-        parsedEquations.append(parseLeft(i.split('=')[0]))
-        results_array.append(int(i.split('=')[1].strip()))
-
-    for i in parsedEquations:
-        for l in letters:
-            if l not in i:
-                i[l] = 0
-    equations_arrays = createArrays(parsedEquations)
-    matrix_b_arrays = []
-
-    it = 0
-    while it < len(results_array):
-        matrix_b_arrays.append(equations_arrays[it] + [results_array[it]])
-        it = it + 1
-
-    matrix_a = np.matrix(equations_arrays)
-    matrix_b = np.matrix(matrix_b_arrays)
-    if(checkRanks(matrix_a,matrix_b) == False):
-        return
-    if checkZeroDeterminant(matrix_a) is True:
-        print('no solution\n')
-        return
-
-    a = np.array(createArrays(parsedEquations))
-    b = np.array(results_array)
-    countResult(a,b,letters,EQUATIONS)
-    return
-
-def removeSpaces(string):
-    return ((" ".join(string.split()).strip()))
-
-def main():
-    FILENAME = 'equations.txt'
-    #FILENAME = sys.argv[1]
-    f = open(FILENAME, 'r', encoding='utf-8-sig')
-    input = f.read().split('\n')
-    equations = []
-
-    for equation in input:
-        if(equation is not ""):
-            equations.append(removeSpaces(equation.strip()))
-    #print(equations)
-    compute(equations)
-
-main()
