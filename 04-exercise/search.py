@@ -87,10 +87,16 @@ def main():
 
         if len(print_instance) != 0:
             RESULT_FOR_PRINT.append(RESULT)
-            #print(json.dumps(RESULT, indent=2, ensure_ascii=False))
 
     if len(RESULT_FOR_PRINT) != 0:
-        print(json.dumps(RESULT_FOR_PRINT, indent=2, ensure_ascii=False))
+        hotovo = {}
+        for i in RESULT_FOR_PRINT:
+            for k,v in i.items():
+                hotovo.update({k:v})
+        print(json.dumps(hotovo, indent=2, ensure_ascii=False))
+    else:
+        print(json.dumps({}, indent=2, ensure_ascii=False))
+
 
 
     conn.close()
