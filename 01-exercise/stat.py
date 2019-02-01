@@ -57,4 +57,4 @@ else:
             centuries.update({century: centuries[century] + 1})
 
     for k, v in sorted(centuries.items(), key=lambda p: p[1], reverse=True):
-        print('%s th century: %d' % (k, v))
+        print('%sth century: %d' % (k, v))
