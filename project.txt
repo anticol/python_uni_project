@@ -9,6 +9,7 @@ Funkcionalita:
 -Zvukove efekty
 -Vyriesenie sudoku (ak uz uzivatel nechce hrat)
 -Lokalna databaza hier
+-Oznamenie o vyhre (vyrieseni)
 -Jednoduche menu (nova hra, najvyssie skore, urovne obtiaznosti)
 
-(Este som hru v Pythone neporgramoval tak dufam, ze zadanie je v rozsahu dvoch DU a neprecenil som sa)
+(Este som hru v Pythone neprogramoval tak dufam, ze zadanie je v rozsahu dvoch DU a neprecenil som sa)
