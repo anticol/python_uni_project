@@ -1,0 +1,14 @@
+Implementoval by som GUI pre hru SUDOKU podla klasickych pravidiel:
+
+Funkcionalita:
+-Pridanie cisla na prazdne policko
+-Vymazanie cisla z policka
+-Zmena cisla v policku
+-Vymazanie vsetkych policiek zadanych uzivatelom
+-Ovladanie klavesnicou
+-Zvukove efekty
+-Vyriesenie sudoku (ak uz uzivatel nechce hrat)
+-Lokalna databaza hier
+-Jednoduche menu (nova hra, najvyssie skore, urovne obtiaznosti)
+
+(Este som hru v Pythone neporgramoval tak dufam, ze zadanie je v rozsahu dvoch DU a neprecenil som sa)
