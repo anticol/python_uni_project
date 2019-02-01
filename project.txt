@@ -1,4 +1,4 @@
-Implementoval by som GUI pre hru SUDOKU podla klasickych pravidiel:
+Hra SUDOKU podla klasickych pravidiel:
 
 Funkcionalita:
 -Pridanie cisla na prazdne policko
