@@ -11,4 +11,3 @@ Funkcionalita:
 -Oznamenie o vyhre (vyrieseni)
 -Jednoduche menu (nova hra,  urovne obtiaznosti)
 
-(Este som hru v Pythone neprogramoval tak dufam, ze zadanie je v rozsahu dvoch DU a neprecenil som sa)
