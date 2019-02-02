@@ -8,7 +8,6 @@ Funkcionalita:
 -Ovladanie klavesnicou
 -Zvukove efekty
 -Vyriesenie sudoku (ak uz uzivatel nechce hrat)
--Lokalna databaza hier
 -Oznamenie o vyhre (vyrieseni)
 -Jednoduche menu (nova hra,  urovne obtiaznosti)
 
