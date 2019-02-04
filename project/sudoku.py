@@ -8,6 +8,7 @@ from winsound import *
 import pygame
 from pygame.mixer import Sound
 
+
 NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 LETTERS = ['A','B','C','D','E','F','G','H','I']
 ITEMS_IN_ROW = 9
@@ -16,7 +17,6 @@ M = 3
 EASY_FIXED_CELLS = 40
 MEDIUM_FIXED_CELLS = 32
 HARD_FIXED_CELLS = 24
-
 
 class Box:
     def __init__(self):
